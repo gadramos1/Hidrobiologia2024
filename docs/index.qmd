@@ -7,5 +7,20 @@ editor: visual
 
 # Uso GitHub: Trabajo final
 
+## Ejercicio 1
+
+Cargar base de datos
+```{r}
+penguins <- read.csv("data/penguins_size.csv")
+View(penguins)
+```
+
+
+## Ejercicio 2
+
+
+## Ejercicio 3
+
+
 
 
