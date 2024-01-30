@@ -48,7 +48,7 @@ Resumen del peso con el sexo y la isla
 penguins3 <- penguins %>%
   group_by(sex, island) %>%
   summarise(mediapeso = mean(body_mass_g)) %>% 
-  ggplot(aes(x = sex, y = island)) + 
+  ggplot(aes(x = island, y = sex)) + 
   geom_col(width = 0.5, fill = "darkgreen")+
   theme_classic()
 
