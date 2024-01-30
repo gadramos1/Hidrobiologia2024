@@ -7,7 +7,14 @@ editor: visual
 
 # Uso GitHub: Trabajo final
 
+::: panel-tabset
+
 ## Ejercicio 1
+
+Cargar paquete
+```{r}
+library(tidyverse)
+```
 
 Cargar base de datos
 ```{r}
@@ -15,12 +22,165 @@ penguins <- read.csv("data/penguins_size.csv")
 View(penguins)
 ```
 
+Revisión de la variable "island"
+```{r}
+table(penguins$island)
+```
+
+Filtrado por sexo hembra
+```{r}
+penguins1 <- penguins %>% 
+  filter(sex == "FEMALE")
+```
+
+Selección por la isla "Biscoe"
+```{r}
+penguins2 <- penguins1 %>%
+  select(island) %>%
+  filter(island == "Biscoe")
+
+str(penguins2)
+
+```
+
+Resumen del peso con el sexo y la isla
+```{r}
+penguins3 <- penguins %>%
+  group_by(sex, island) %>%
+  summarise(mediapeso = mean(body_mass_g)) %>% 
+  ggplot(aes(x = sex, y = island)) + 
+  geom_col(width = 0.5, fill = "darkgreen")+
+  theme_classic()
+
+penguins3
+```
 
 ## Ejercicio 2
 
+Cargar base de datos
+```{r}
+catrate <- read.csv("data/catrate.csv")
+head(catrate)
+```
+
+Grafico
+```{r}
+catrate2 <- catrate %>%
+  mutate(year = as.factor(years)) %>%
+  select (year, pond, success) %>%
+  ggplot(aes(x = year, y = pond)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  theme_classic()
+
+catrate2
+```
 
 ## Ejercicio 3
 
+Cargar bases de datos crudas
+```{r}
+visita1 <- read.csv2("data/Replic1_birds.csv")
+visita2 <- read.csv2("data/Replic2_birds.csv")
+visita3 <- read.csv2("data/Replic3_birds.csv")
 
+view(visita1)
+view(visita2)
+view(visita3)
+```
 
+Renombramiento de escabezados de bases de datos crudas
+```{r}
+visitaclean <- visita1 %>%
+  rename("Sitio" = "Site",
+         "HabitatSitio" = "Sitio..",
+         "Fecha" = "Fecha..m.d.a.",
+         "Abundancia" = "Num..0.50",
+         "Hora" = "Hora.0.00.24.00.") %>%
+  select(Sitio, HabitatSitio, Fecha, Especies, Abundancia, Hora, Viento, Cielo, Rio, Sequence)
 
+visitaclean2 <- visita2 %>%
+  rename("Sitio" = "Sitio..",
+         "HabitatSitio" = "Sitio...1",
+         "Fecha" = "Fecha..m.d.a.", 
+         "Abundancia" = "Num..0.50",
+         "Hora" = "Hora.0.00.24.00.") %>%
+  select(Sitio, HabitatSitio, Fecha, Especies, Abundancia, Hora, Viento, Cielo, Rio, Sequence)
+
+visitaclean3 <- visita3 %>%
+  rename("Sitio" = "Sitio..",
+         "HabitatSitio" = "Sitio...1",
+         "Fecha" = "Fecha..m.d.a.",
+         "Abundancia" = "Num..0.50",
+         "Hora" = "Hora.0.00.24.00.") %>%
+  select(Sitio, HabitatSitio, Fecha, Especies, Abundancia, Hora, Viento, Cielo, Rio, Sequence)
+```
+
+Union de las bases de datos crudas renombradas
+```{r}
+visita4 <-rbind(visitaclean, visitaclean2, visitaclean3)
+
+head(visita4)
+```
+
+Agrupamiento de variables de interes
+```{r}
+Avesvegan <-visita4 %>%
+  group_by(Sitio, HabitatSitio, Fecha, Hora, Cielo, Viento, Rio, Especies) %>%
+  summarise(Abundancia = max(Abundancia)) %>%
+  pivot_wider(names_from = Especies, 
+              values_from = Abundancia,
+              values_fill = 0)
+
+view(Avesvegan)
+```
+
+Cargar base de datos de vegetacion
+```{r}
+Arboles <- read.csv2("data/TreesQ.csv")
+Habitat <- read.csv2("data/VegData.csv")
+Cobertura <- read.csv2("data/HistQ.csv")
+```
+
+Agrupamiento de VEGID por area basal
+```{r}
+AreaBasal <- Arboles %>%
+  group_by(VEGID) %>%
+  summarise(Area_Basal = 2*(A* 0.1 + B* 0.3 + C* 0.8 + D*1.8 + E*3.1 + F *4.9 + G*7.1 + H*0.05)) %>%
+  summarise(Area_Basal = sum(Area_Basal))
+
+view(AreaBasal)
+```
+
+Cobertura de VEGID
+```{r}
+CoberturaSum <- Cobertura %>% 
+  group_by(VEGID) %>% 
+  summarise(Group_cover = sum(A, na.rm = TRUE)+sum(B, na.rm = TRUE)+sum(C, na.rm = TRUE),
+            Subcanopy = sum(D, na.rm = TRUE) + sum(E, na.rm = TRUE))
+
+view(CoberturaSum)
+```
+
+Union de la tabla area basal con cobertura
+```{r}
+HabitatFull <- Habitat %>%
+  left_join(AreaBasal, by = "VEGID") %>%
+  left_join(CoberturaSum, by = "VEGID")
+
+TablaFull <- HabitatFull %>%
+  mutate(Sitio = factor(Site)) %>%
+  full_join(Avesvegan, by = "Sitio")
+```
+
+Grafico
+```{r}
+ggplot(data = TablaFull, aes(x = Area_Basal, y = SETMAG)) +
+  geom_point(aes (color = Type)) +
+  stat_smooth(method = glm,
+              method.args = list(family = "poisson"),
+              aes (fill = Type)) +
+  theme_classic()
+
+```
+
+:::
