@@ -48,7 +48,7 @@ Resumen del peso con el sexo y la isla
 penguins3 <- penguins %>%
   group_by(sex, island) %>%
   summarise(mediapeso = mean(body_mass_g)) %>% 
-  ggplot(aes(x = island, y = sex)) + 
+  ggplot(aes(x = sex, y = mediapeso)) + 
   geom_col(width = 0.5, fill = "darkgreen")+
   theme_classic()
 
@@ -62,8 +62,7 @@ Cargar base de datos
 catrate <- read.csv("data/catrate.csv")
 head(catrate)
 ```
-
-Grafico
+Gráfico
 ```{r}
 catrate2 <- catrate %>%
   mutate(year = as.factor(years)) %>%
@@ -172,7 +171,7 @@ TablaFull <- HabitatFull %>%
   full_join(Avesvegan, by = "Sitio")
 ```
 
-Grafico
+Gráfico
 ```{r}
 ggplot(data = TablaFull, aes(x = Area_Basal, y = SETMAG)) +
   geom_point(aes (color = Type)) +
