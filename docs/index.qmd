@@ -7,5 +7,26 @@ editor: visual
 
 # Uso GitHub: Trabajo final
 
+::: panel - tabset
+## Ejercicio 1
 
+Cargar paquete
+```{r}
+library(tidyverse)
+```
+Cargar base de datos
+```{r}
+penguins <- read.csv("data/penguins_size.csv")
+View(penguins)
+
+table(penguins$island)
+```
+
+
+## Ejercicio 2
+
+
+## Ejercicio 3
+
+:::
 
